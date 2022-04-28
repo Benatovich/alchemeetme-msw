@@ -8,7 +8,6 @@ import { screen, render } from '@testing-library/react'
 import { rest } from 'msw'
 import { setupServer } from 'msw/node'
 import App from './App'
-import fetchUser from './services/user'
 
 const user = {
   id: 1,
@@ -24,26 +23,26 @@ const user = {
 
 // 🚨 Create your server
 const server  = setupServer(
-  rest.get(`${process.env.REACT_APP_SUPABASE_URL}/rest/v1/users/:id`, (req, res, ctx) => {
-    const { id } = req.params;
-    console.log('mocked request id:', id);
-    return res(ctx.json(fetchUser));
-    // return res(ctx.json({ name: 'Karl' }));
+  rest.get(`${process.env.REACT_APP_SUPABASE_URL}/rest/v1/users`, (req, res, ctx) => {
+    return res(ctx.json([user]));
   })
 )
 
-// 🚨 Listen for server start
-beforeAll(() => server.listen())
+describe('App', () => {
 
-// 🚨 Close server when complete
-afterAll(() => server.close())
-
+  
+  // 🚨 Listen for server start
+  beforeAll(() => server.listen())
+  
+  // 🚨 Close server when complete
+  afterAll(() => server.close())
+  
 test.only('Should render the header', async () => {
   render(<App />)
   const banner = screen.getByRole('banner')
   const headerImg = screen.getByAltText(/alchemy/i)
   const profileName = await screen.findByText(user.name)
-
+  
   expect(banner).toHaveStyle({
     background: 'var(--grey)',
   })
@@ -70,4 +69,6 @@ test('Should render the header with Sasuke 🌬️🔥', async () => {
   const profileName = await screen.findByText(sasuke.name)
 
   expect(profileName).toBeInTheDocument()
+})
+
 })
