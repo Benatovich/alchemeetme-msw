@@ -37,7 +37,7 @@ describe('App', () => {
   // 🚨 Close server when complete
   afterAll(() => server.close())
   
-test.only('Should render the header', async () => {
+test('Should render the header', async () => {
   render(<App />)
   const banner = screen.getByRole('banner')
   const headerImg = screen.getByAltText(/alchemy/i)
@@ -63,8 +63,14 @@ test('Should render the header with Sasuke 🌬️🔥', async () => {
   }
 
   // 🚨 Use the server to change the response for this test
+  server.use(
+    rest.get(`${process.env.REACT_APP_SUPABASE_URL}/rest/v1/users`, (req, res, ctx) => {
+      return res(ctx.json([sasuke]));
+    })
+  )
 
   render(<App />)
+
 
   const profileName = await screen.findByText(sasuke.name)
 
